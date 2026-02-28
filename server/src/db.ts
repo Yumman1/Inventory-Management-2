@@ -683,14 +683,8 @@ export async function getStore(): Promise<DatabaseSnapshot> {
     listPerfumes(), listOlfactiveNotes(), listGateInLogs(), listGateOutLogs(),
     listTransferLogs(), listUsers()
   ]);
-  let currentUser = await getCurrentUser();
-  if (!currentUser && users.length > 0) {
-    const admin = users.find(u => u.id === 'admin-1' || u.role === UserRole.Admin);
-    if (admin) {
-      await setCurrentUser(admin.id);
-      currentUser = admin;
-    }
-  }
+  // Always return null for currentUser so app starts at login page; user must sign in
+  const currentUser = null;
   return {
     suppliers, customers, packingTypes, locations, perfumes, olfactiveNotes,
     gateInLogs, gateOutLogs, transferLogs, users, currentUser,
