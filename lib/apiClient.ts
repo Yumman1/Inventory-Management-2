@@ -13,6 +13,10 @@ async function fetchApi<T>(
     headers: { 'Content-Type': 'application/json', ...opts?.headers },
     ...opts
   });
+  const contentType = res.headers.get('content-type') || '';
+  if (contentType.includes('text/html')) {
+    throw new Error('API returned HTML instead of JSON. Check that SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are set in Vercel Environment Variables.');
+  }
   if (!res.ok) {
     const err = await res.json().catch(() => ({ error: res.statusText }));
     throw new Error(err.error || `API error ${res.status}`);
