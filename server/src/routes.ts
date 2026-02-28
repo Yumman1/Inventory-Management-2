@@ -70,6 +70,7 @@ import type {
   User,
   DatabaseSnapshot
 } from './types.js';
+import { UserRole } from './types.js';
 
 const router = Router();
 
@@ -96,7 +97,7 @@ router.post('/auth/signup', asyncHandler(async (req: Request<object, object, { e
   if (!email?.trim() || !password || !name?.trim()) return res.status(400).json({ error: 'Email, password and name required' });
   if (password.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters' });
   try {
-    const user = await createUser({ name: name.trim(), email: email.trim(), password, role: 'Operator' as const, permissions: { canViewPrices: false, allowedLocationIds: [] } });
+    const user = await createUser({ name: name.trim(), email: email.trim(), password, role: UserRole.Operator, permissions: { canViewPrices: false, allowedLocationIds: [] } });
     await setCurrentUser(user.id);
     res.status(201).json(user);
   } catch (e: any) {

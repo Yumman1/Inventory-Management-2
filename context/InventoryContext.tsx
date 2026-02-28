@@ -4,7 +4,7 @@ import {
   GateInLog, GateOutLog, StockTransferLog,
   User, UserRole
 } from '../types';
-import { api } from '../api/client';
+import { api } from '../lib/apiClient';
 
 interface StockPosition {
   mainLocationId: string;
