@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import express from 'express';
+import express, { Request, Response } from 'express';
 import cors from 'cors';
 import routes from './routes.js';
 
@@ -10,6 +10,6 @@ app.use(express.json());
 
 app.use('/api', routes);
 
-app.get('/health', (_, res) => res.json({ ok: true, service: 'scentvault-api' }));
+app.get('/health', (_req: Request, res: Response) => res.json({ ok: true, service: 'scentvault-api' }));
 
 export default app;
