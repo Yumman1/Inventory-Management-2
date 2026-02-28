@@ -74,6 +74,9 @@ import { UserRole } from './types.js';
 
 const router = Router();
 
+// Ensure param/query value is string (Express types can be string | string[] | ParsedQs)
+const param = (p: unknown): string => (typeof p === 'string' ? p : Array.isArray(p) && typeof p[0] === 'string' ? p[0] : '');
+
 // Helper to run async handlers
 const asyncHandler = (fn: (req: Request, res: Response) => Promise<unknown>) => (req: Request, res: Response) => {
   void fn(req, res).catch(err => {
@@ -124,12 +127,12 @@ router.post('/suppliers', asyncHandler(async (req: Request<object, object, Suppl
   res.status(201).json(s);
 }));
 router.put('/suppliers/:id', asyncHandler(async (req, res) => {
-  res.json(await updateSupplier(req.params.id, req.body));
+  res.json(await updateSupplier(param(req.params.id), req.body));
 }));
 router.delete('/suppliers/:id', asyncHandler(async (req, res) => {
-  const inUse = await supplierInUse(req.params.id);
+  const inUse = await supplierInUse(param(req.params.id));
   if (inUse) return res.status(400).json({ error: 'Cannot delete: supplier is used by perfumes' });
-  await deleteSupplier(req.params.id);
+  await deleteSupplier(param(req.params.id));
   res.status(204).send();
 }));
 
@@ -142,11 +145,11 @@ router.post('/customers', asyncHandler(async (req: Request<object, object, Custo
   res.status(201).json(c);
 }));
 router.put('/customers/:id', asyncHandler(async (req, res) => {
-  res.json(await updateCustomer(req.params.id, req.body));
+  res.json(await updateCustomer(param(req.params.id), req.body));
 }));
 router.delete('/customers/:id', asyncHandler(async (req, res) => {
-  if (await customerInUse(req.params.id)) return res.status(400).json({ error: 'Cannot delete: customer is used in gate-out records' });
-  await deleteCustomer(req.params.id);
+  if (await customerInUse(param(req.params.id))) return res.status(400).json({ error: 'Cannot delete: customer is used in gate-out records' });
+  await deleteCustomer(param(req.params.id));
   res.status(204).send();
 }));
 
@@ -159,11 +162,11 @@ router.post('/packing-types', asyncHandler(async (req: Request<object, object, P
   res.status(201).json(p);
 }));
 router.put('/packing-types/:id', asyncHandler(async (req, res) => {
-  res.json(await updatePackingType(req.params.id, req.body));
+  res.json(await updatePackingType(param(req.params.id), req.body));
 }));
 router.delete('/packing-types/:id', asyncHandler(async (req, res) => {
-  if (await packingTypeInUse(req.params.id)) return res.status(400).json({ error: 'Cannot delete: packing type is used in transactions' });
-  await deletePackingType(req.params.id);
+  if (await packingTypeInUse(param(req.params.id))) return res.status(400).json({ error: 'Cannot delete: packing type is used in transactions' });
+  await deletePackingType(param(req.params.id));
   res.status(204).send();
 }));
 
@@ -177,18 +180,18 @@ router.get('/locations/main', asyncHandler(async (_, res) => {
 }));
 router.get('/locations/sub/:mainId', asyncHandler(async (req, res) => {
   const locs = await listLocations();
-  res.json(getSubLocations(locs, req.params.mainId));
+  res.json(getSubLocations(locs, param(req.params.mainId)));
 }));
 router.post('/locations', asyncHandler(async (req: Request<object, object, Location>, res) => {
   const l = await createLocation(req.body);
   res.status(201).json(l);
 }));
 router.put('/locations/:id', asyncHandler(async (req, res) => {
-  res.json(await updateLocation(req.params.id, req.body));
+  res.json(await updateLocation(param(req.params.id), req.body));
 }));
 router.delete('/locations/:id', asyncHandler(async (req, res) => {
-  if (await locationInUse(req.params.id)) return res.status(400).json({ error: 'Cannot delete: location is used in transactions or has sub-locations' });
-  await deleteLocation(req.params.id);
+  if (await locationInUse(param(req.params.id))) return res.status(400).json({ error: 'Cannot delete: location is used in transactions or has sub-locations' });
+  await deleteLocation(param(req.params.id));
   res.status(204).send();
 }));
 
@@ -201,11 +204,11 @@ router.post('/perfumes', asyncHandler(async (req: Request<object, object, Perfum
   res.status(201).json(p);
 }));
 router.put('/perfumes/:id', asyncHandler(async (req, res) => {
-  res.json(await updatePerfume(req.params.id, req.body));
+  res.json(await updatePerfume(param(req.params.id), req.body));
 }));
 router.delete('/perfumes/:id', asyncHandler(async (req, res) => {
-  if (await perfumeInUse(req.params.id)) return res.status(400).json({ error: 'Cannot delete: perfume has stock or transaction history' });
-  await deletePerfume(req.params.id);
+  if (await perfumeInUse(param(req.params.id))) return res.status(400).json({ error: 'Cannot delete: perfume has stock or transaction history' });
+  await deletePerfume(param(req.params.id));
   res.status(204).send();
 }));
 
@@ -225,7 +228,7 @@ router.put('/olfactive-notes', asyncHandler(async (req: Request<object, object, 
   res.json(await renameOlfactiveNote(oldName, cleanNew));
 }));
 router.delete('/olfactive-notes/:name', asyncHandler(async (req, res) => {
-  const name = decodeURIComponent(req.params.name);
+  const name = decodeURIComponent(param(req.params.name));
   res.json(await deleteOlfactiveNote(name));
 }));
 
@@ -238,10 +241,10 @@ router.post('/gate-in', asyncHandler(async (req: Request<object, object, GateInL
   res.status(201).json(l);
 }));
 router.put('/gate-in/:id', asyncHandler(async (req, res) => {
-  res.json(await updateGateInLog(req.params.id, req.body));
+  res.json(await updateGateInLog(param(req.params.id), req.body));
 }));
 router.delete('/gate-in/:id', asyncHandler(async (req, res) => {
-  await deleteGateInLog(req.params.id);
+  await deleteGateInLog(param(req.params.id));
   res.status(204).send();
 }));
 
@@ -254,10 +257,10 @@ router.post('/gate-out', asyncHandler(async (req: Request<object, object, GateOu
   res.status(201).json(l);
 }));
 router.put('/gate-out/:id', asyncHandler(async (req, res) => {
-  res.json(await updateGateOutLog(req.params.id, req.body));
+  res.json(await updateGateOutLog(param(req.params.id), req.body));
 }));
 router.delete('/gate-out/:id', asyncHandler(async (req, res) => {
-  await deleteGateOutLog(req.params.id);
+  await deleteGateOutLog(param(req.params.id));
   res.status(204).send();
 }));
 
@@ -270,10 +273,10 @@ router.post('/transfers', asyncHandler(async (req: Request<object, object, Stock
   res.status(201).json(l);
 }));
 router.put('/transfers/:id', asyncHandler(async (req, res) => {
-  res.json(await updateTransferLog(req.params.id, req.body));
+  res.json(await updateTransferLog(param(req.params.id), req.body));
 }));
 router.delete('/transfers/:id', asyncHandler(async (req, res) => {
-  await deleteTransferLog(req.params.id);
+  await deleteTransferLog(param(req.params.id));
   res.status(204).send();
 }));
 
@@ -289,10 +292,10 @@ router.post('/users', asyncHandler(async (req: Request<object, object, User>, re
   res.status(201).json(u);
 }));
 router.put('/users/:id', asyncHandler(async (req, res) => {
-  res.json(await updateUser(req.params.id, req.body));
+  res.json(await updateUser(param(req.params.id), req.body));
 }));
 router.delete('/users/:id', asyncHandler(async (req, res) => {
-  await deleteUser(req.params.id);
+  await deleteUser(param(req.params.id));
   res.status(204).send();
 }));
 router.post('/users/current', asyncHandler(async (req: Request<object, object, User>, res) => {
@@ -303,19 +306,19 @@ router.post('/users/current', asyncHandler(async (req: Request<object, object, U
 router.get('/batch-stock', asyncHandler(async (req, res) => {
   const { perfumeId, mainLocId, subLocId, excludeLogId } = req.query;
   if (!perfumeId || !mainLocId) return res.status(400).json({ error: 'perfumeId and mainLocId required' });
-  const result = await getBatchStock(perfumeId as string, mainLocId as string, (subLocId as string) || undefined, (excludeLogId as string) || undefined);
+  const result = await getBatchStock(param(perfumeId), param(mainLocId), param(subLocId) || undefined, param(excludeLogId) || undefined);
   res.json(result);
 }));
 
 // ============= STOCK BREAKDOWN =============
 router.get('/stock-breakdown/:perfumeId', asyncHandler(async (req, res) => {
-  const breakdown = await getPerfumeStockBreakdown(req.params.perfumeId);
+  const breakdown = await getPerfumeStockBreakdown(param(req.params.perfumeId));
   res.json(breakdown);
 }));
 
 // ============= MOVEMENT HISTORY =============
 router.get('/movement-history/:perfumeId', asyncHandler(async (req, res) => {
-  const history = await getPerfumeMovementHistory(req.params.perfumeId);
+  const history = await getPerfumeMovementHistory(param(req.params.perfumeId));
   res.json(history);
 }));
 
