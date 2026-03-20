@@ -3,6 +3,7 @@ import { useInventory } from '../../context/InventoryContext';
 import { GateInLog, GateOutLog, StockTransferLog, GateOutUsage } from '../../types';
 import { Input } from '../ui/Input';
 import { Select } from '../ui/Select';
+import { Combobox } from '../ui/Combobox';
 import { Button } from '../ui/Button';
 import { Pencil, Trash2, X, PlusCircle, History, ArrowRight, MapPin, Package, ArrowRightLeft, AlertTriangle } from 'lucide-react';
 
@@ -145,12 +146,13 @@ export const GateInForm = () => {
 
                 <div className="space-y-1">
                     <Input label="Date" type="date" value={date} onChange={e => setDate(e.target.value)} required />
-                    <Select 
+                    <Combobox 
                         label="Perfume"
                         options={perfumes.map(p => ({ value: p.id, label: `${p.code} - ${p.name}` }))}
                         value={selectedPerfumeId}
-                        onChange={e => setSelectedPerfumeId(e.target.value)}
+                        onChange={setSelectedPerfumeId}
                         required
+                        placeholder="Type to filter or select perfume..."
                     />
                     <div className="grid grid-cols-2 gap-3">
                         <Input label="Batch #" value={importRef} onChange={e => setImportRef(e.target.value)} required />
@@ -350,12 +352,13 @@ export const GateOutForm = () => {
 
                 <div className="space-y-1">
                     <Input label="Date" type="date" value={date} onChange={e => setDate(e.target.value)} required />
-                    <Select 
+                    <Combobox 
                         label="Perfume"
-                        options={perfumes.map(p => ({ value: p.id, label: p.name }))}
+                        options={perfumes.map(p => ({ value: p.id, label: `${p.code} - ${p.name}` }))}
                         value={selectedPerfumeId}
-                        onChange={e => { setSelectedPerfumeId(e.target.value); setBatchNumber(''); }}
+                        onChange={(id) => { setSelectedPerfumeId(id); setBatchNumber(''); }}
                         required
+                        placeholder="Type to filter or select perfume..."
                     />
                     <div className="grid grid-cols-2 gap-3">
                         <Select 
@@ -575,12 +578,13 @@ export const StockTransferForm = () => {
 
                 <div className="space-y-4">
                     <Input label="Transfer Date" type="date" value={date} onChange={e => setDate(e.target.value)} required />
-                    <Select 
+                    <Combobox 
                         label="Perfume Asset"
                         options={perfumes.map(p => ({ value: p.id, label: `${p.code} - ${p.name}` }))}
                         value={selectedPerfumeId}
-                        onChange={e => { setSelectedPerfumeId(e.target.value); setBatchNumber(''); }}
+                        onChange={(id) => { setSelectedPerfumeId(id); setBatchNumber(''); }}
                         required
+                        placeholder="Type to filter or select perfume asset..."
                     />
 
                     <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-3">
